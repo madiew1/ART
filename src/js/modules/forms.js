@@ -1,11 +1,9 @@
-// import checkNumInputs from './checkNumInputs';
+import { postData } from "./services/requests";
 
-const forms = () => {
+const forms = (state) => {
     const form = document.querySelectorAll('form'),
           inputs = document.querySelectorAll('input'),
-          upload = document.querySelectorAll('[name="upload"');
-
-    // checkNumInputs('input[name="user_phone"]');
+          upload = document.querySelectorAll('[name="upload"]');
     
     const message = {
         loading: 'Загрузка...',
@@ -18,16 +16,7 @@ const forms = () => {
 
     const path = {
         designer: 'assets/server.php',
-        question: 'assets/question.php',
-    }
-
-    const postData = async (url, data) => {
-        let res = await fetch(url, {
-            method: "POST",
-            body: data
-        });
-
-        return await res.text();
+        question: 'assets/question.php'
     };
 
     const clearInputs = () => {
@@ -35,8 +24,8 @@ const forms = () => {
             item.value = '';
         });
         upload.forEach(item => {
-            item.previousElementSibling.textContent = 'Файл не выбран';
-        })
+            item.previousElementSibling.textContent = "Файл не выбран";
+        });
     };
 
     upload.forEach(item => {
@@ -44,8 +33,9 @@ const forms = () => {
             console.log(item.files[0]);
             let dots;
             const arr = item.files[0].name.split('.');
+
             arr[0].length > 6 ? dots = "..." : dots = '.';
-            const name = arr[0].substring(0 , 6) + dots + arr[1];
+            const name = arr[0].substring(0, 6) + dots + arr[1];
             item.previousElementSibling.textContent = name;
         });
     });
@@ -74,9 +64,18 @@ const forms = () => {
 
             const formData = new FormData(item);
             let api;
-            item.closest('.popup-design') || item.classList.contains('calc_form') ? api = path.designer : api = path.question;
+            if (item.closest('.popup-design') || item.classList.contains('calc_form')) {
+                api = path.designer;
+            } else {
+                api = path.question;
+            }
+            
+            if (item.getAttribute("data-calc") === "end") {        
+                for (let key in state) {          
+                formData.append(key, state[key]);      
+                }      
+            }   
             console.log(api);
-
 
             postData(api, formData)
                 .then(res => {
@@ -102,3 +101,5 @@ const forms = () => {
 };
 
 export default forms;
+
+ 
